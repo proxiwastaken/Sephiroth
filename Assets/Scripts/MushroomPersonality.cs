@@ -1,0 +1,27 @@
+using UnityEngine;
+
+public abstract class MushroomPersonality : MonoBehaviour
+{
+    protected MushroomAI mushroomAI;
+    protected MushroomData data;
+
+    public virtual void Initialize(MushroomAI ai, MushroomData mushroomData)
+    {
+        mushroomAI = ai;
+        data = mushroomData;
+    }
+
+    public abstract void UpdateBehavior();
+
+    public virtual void OnStateChanged(MushroomState fromState, MushroomState toState)
+    {
+        // Override THIS!!!
+    }
+
+    protected void ChangeState(MushroomState newState)
+    {
+        if (mushroomAI != null)
+            mushroomAI.ChangeState(newState);
+    }
+}
+
