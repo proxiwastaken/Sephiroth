@@ -132,7 +132,7 @@ GameObject:
   - component: {fileID: 85923546}
   - component: {fileID: 85923545}
   - component: {fileID: 85923550}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: MushroomAI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -277,7 +277,7 @@ MonoBehaviour:
   animator: {fileID: 0}
   playerLayer:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 256
   currentState: 0
 --- !u!4 &85923549
 Transform:
@@ -335,7 +335,7 @@ GameObject:
   - component: {fileID: 279360990}
   - component: {fileID: 279360989}
   - component: {fileID: 279360988}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: MushroomAI (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -507,7 +507,7 @@ MonoBehaviour:
   animator: {fileID: 0}
   playerLayer:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 256
   currentState: 0
 --- !u!4 &279360992
 Transform:
@@ -1012,7 +1012,7 @@ GameObject:
   - component: {fileID: 921968791}
   - component: {fileID: 921968790}
   - component: {fileID: 921968789}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Capsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1122,7 +1122,7 @@ GameObject:
   - component: {fileID: 980740383}
   - component: {fileID: 980740382}
   - component: {fileID: 980740381}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1310,7 +1310,7 @@ GameObject:
   - component: {fileID: 1061744733}
   - component: {fileID: 1061744732}
   - component: {fileID: 1061744731}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: MushroomAI (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1482,7 +1482,7 @@ MonoBehaviour:
   animator: {fileID: 0}
   playerLayer:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 256
   currentState: 0
 --- !u!4 &1061744735
 Transform:
@@ -1493,7 +1493,7 @@ Transform:
   m_GameObject: {fileID: 1061744730}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 22.29, y: 0, z: -2.79}
+  m_LocalPosition: {x: 22.29, y: 0.19, z: -4.6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1638,7 +1638,8 @@ GameObject:
   - component: {fileID: 1355991005}
   - component: {fileID: 1355991004}
   - component: {fileID: 1355991003}
-  m_Layer: 0
+  - component: {fileID: 1355991008}
+  m_Layer: 8
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -1659,7 +1660,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 5
   rotationSmoothTime: 0.1
-  cameraTransform: {fileID: 0}
+  cameraTransform: {fileID: 330585546}
   mouseSensitivity: 2
   minYAngle: -30
   maxYAngle: 60
@@ -1729,6 +1730,34 @@ Transform:
   - {fileID: 921968788}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1355991008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1355991002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69e5f355d437f484c8b5349bacb06761, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ropeSegmentPrefab: {fileID: 762143816707459755, guid: 86e2a12f4c8b05c4f9c765a6a9a6c067, type: 3}
+  ropeSegments: 7
+  segmentLength: 0.5
+  ropeWidth: 0.21
+  springForce: 50
+  springDamper: 8.54
+  throwForce: 6.2
+  reelSpeed: 3
+  catchableLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  throwKey: 113
+  retractKey: 114
+  ropeMaterial: {fileID: 2100000, guid: 16072cafaede49e4dbe053c958e15511, type: 2}
+  lineWidth: 0.05
+  ropeAnchor: {fileID: 0}
 --- !u!1 &1357917800
 GameObject:
   m_ObjectHideFlags: 0
@@ -1741,7 +1770,7 @@ GameObject:
   - component: {fileID: 1357917804}
   - component: {fileID: 1357917803}
   - component: {fileID: 1357917802}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1850,7 +1879,7 @@ GameObject:
   - component: {fileID: 1436719446}
   - component: {fileID: 1436719445}
   - component: {fileID: 1436719444}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: MushroomAI (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2022,7 +2051,7 @@ MonoBehaviour:
   animator: {fileID: 0}
   playerLayer:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 256
   currentState: 0
 --- !u!4 &1436719448
 Transform:
@@ -2297,7 +2326,7 @@ GameObject:
   - component: {fileID: 1847204537}
   - component: {fileID: 1847204536}
   - component: {fileID: 1847204535}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2467,7 +2496,7 @@ GameObject:
   - component: {fileID: 2128709336}
   - component: {fileID: 2128709335}
   - component: {fileID: 2128709334}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
