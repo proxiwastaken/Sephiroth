@@ -23,5 +23,15 @@ public abstract class MushroomPersonality : MonoBehaviour
         if (mushroomAI != null)
             mushroomAI.ChangeState(newState);
     }
+
+    public virtual void OnTongueAttached()
+    {
+        
+    }
+
+    public virtual void OnTongueReleased()
+    {
+        
+    }
 }
 

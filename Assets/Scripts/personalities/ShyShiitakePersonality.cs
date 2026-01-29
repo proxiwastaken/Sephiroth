@@ -1,10 +1,9 @@
 using UnityEngine;
 
-// rename this class !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 public class ShyShiitakePersonality : MushroomPersonality
 {
     [Header("Shy Behavior")]
-    public float hideTime = 1f;
+    public float hideTime = 10000f;
     public float alertTime = 0.5f;
     public float fleeTime = 3f;
     public float fleeDistance = 8f;
@@ -39,13 +38,7 @@ public class ShyShiitakePersonality : MushroomPersonality
     {
         mushroomAI.StopMushroom();
 
-        // Check if player is in range while hidden - if so, go to alert immediately!
-        if (mushroomAI.PlayerInRange)
-        {
-            ChangeState(MushroomState.Alert);
-        }
-        // Stay hidden for a bit, then peek out if player is gone
-        else if (!mushroomAI.PlayerInRange && mushroomAI.StateTimer > hideTime)
+        if (!mushroomAI.PlayerInRange && mushroomAI.StateTimer > hideTime)
         {
             ChangeState(MushroomState.Idle);
         }
@@ -126,7 +119,7 @@ public class ShyShiitakePersonality : MushroomPersonality
 
     public override void OnStateChanged(MushroomState fromState, MushroomState toState)
     {
-        Debug.Log($"Mushroom {transform.name}: {fromState} -> {toState}"); // Debug line
+        Debug.Log($"Mushroom {transform.name}: {fromState} -> {toState}");
 
         if (toState == MushroomState.Alert)
         {

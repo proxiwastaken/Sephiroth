@@ -7,8 +7,10 @@ public enum MushroomState
     Idle,
     Alert,
     Fleeing,
+    TongueGrabbed,
     Collected
 }
+
 
 public class MushroomAI : MonoBehaviour
 {
@@ -38,6 +40,8 @@ public class MushroomAI : MonoBehaviour
     private Vector3 originalPosition;
     private Vector3 fleeDirection;
 
+    private Vector3 modelOriginalLocalPosition;
+
     void Start()
     {
         InitializeMushroom();
@@ -56,6 +60,15 @@ public class MushroomAI : MonoBehaviour
             if (playerObj != null) player = playerObj.transform;
         }
 
+        // Store original position of the ROOT GameObject
+        originalPosition = transform.position;
+
+        if (mushroomModel != null)
+        {
+            modelOriginalLocalPosition = mushroomModel.transform.localPosition;
+            Debug.Log($"Mushroom {name}: Model original local position = {modelOriginalLocalPosition}");
+        }
+
         // Load personality behavior
         if (mushroomData != null && mushroomData.personalityPrefab != null)
         {
@@ -64,11 +77,8 @@ public class MushroomAI : MonoBehaviour
             personality.Initialize(this, mushroomData);
         }
 
-        // Store original position
-        originalPosition = transform.position;
-
-        // Set initial state
-        ChangeState(MushroomState.Hidden);
+        // Start in Idle state so mushrooms are visible
+        ChangeState(MushroomState.Idle);
     }
 
     void Update()
@@ -126,28 +136,49 @@ public class MushroomAI : MonoBehaviour
 
     void UpdateVisuals()
     {
-        // Update model visibility and position based on state
+        if (mushroomModel == null) return;
+
         switch (currentState)
         {
             case MushroomState.Hidden:
-                if (mushroomModel != null)
+                // Move model DOWN in LOCAL space
+                Vector3 hiddenLocalPos = modelOriginalLocalPosition + Vector3.down * mushroomData.hideDepth;
+
+                // Only lerp if not already at target
+                float distanceToHidden = Vector3.Distance(mushroomModel.transform.localPosition, hiddenLocalPos);
+                if (distanceToHidden > 0.01f)
                 {
-                    Vector3 hiddenPos = originalPosition + Vector3.down * mushroomData.hideDepth;
-                    mushroomModel.transform.position = Vector3.Lerp(
-                        mushroomModel.transform.position,
-                        hiddenPos,
+                    mushroomModel.transform.localPosition = Vector3.Lerp(
+                        mushroomModel.transform.localPosition,
+                        hiddenLocalPos,
                         Time.deltaTime * mushroomData.hideSpeed);
+                }
+                else
+                {
+                    // Snap to exact position to stop drifting
+                    mushroomModel.transform.localPosition = hiddenLocalPos;
                 }
                 break;
 
             case MushroomState.Idle:
             case MushroomState.Alert:
-                if (mushroomModel != null)
+            case MushroomState.Fleeing:
+            case MushroomState.TongueGrabbed: 
+                                              
+
+                // Only lerp if not already at target
+                float distanceToOriginal = Vector3.Distance(mushroomModel.transform.localPosition, modelOriginalLocalPosition);
+                if (distanceToOriginal > 0.01f)
                 {
-                    mushroomModel.transform.position = Vector3.Lerp(
-                        mushroomModel.transform.position,
-                        originalPosition,
+                    mushroomModel.transform.localPosition = Vector3.Lerp(
+                        mushroomModel.transform.localPosition,
+                        modelOriginalLocalPosition,
                         Time.deltaTime * mushroomData.hideSpeed);
+                }
+                else
+                {
+                    // Snap to exact position to stop drifting
+                    mushroomModel.transform.localPosition = modelOriginalLocalPosition;
                 }
                 break;
         }
@@ -159,6 +190,7 @@ public class MushroomAI : MonoBehaviour
         }
     }
 
+
     public void ChangeState(MushroomState newState)
     {
         if (currentState == newState) return;
@@ -166,6 +198,8 @@ public class MushroomAI : MonoBehaviour
         previousState = currentState;
         currentState = newState;
         stateTimer = 0f;
+
+        Debug.Log($"Mushroom {name}: State changed from {previousState} to {currentState}");
 
         // Notify personality of state change
         if (personality != null)
@@ -187,6 +221,14 @@ public class MushroomAI : MonoBehaviour
     public void UpdateFleeDirection(Vector3 newDirection)
     {
         fleeDirection = newDirection;
+    }
+
+    // For teleporting mushrooms
+    public void UpdateOriginalPosition(Vector3 newPosition)
+    {
+        originalPosition = newPosition;
+
+        // Model stays at its local position, no need to change it
     }
 
     void OnDrawGizmosSelected()
@@ -273,6 +315,23 @@ public class MushroomAI : MonoBehaviour
         }
     }
 
+    public void SetTongueGrabbed(bool grabbed)
+    {
+        if (grabbed)
+        {
+            ChangeState(MushroomState.TongueGrabbed);
+        }
+        else if (currentState == MushroomState.TongueGrabbed)
+        {
+            ChangeState(MushroomState.Idle);
+        }
+    }
+
+    public bool IsTongueGrabbed()
+    {
+        return currentState == MushroomState.TongueGrabbed;
+    }
+
     // Getters for personality scripts
     public float StateTimer => stateTimer;
     public bool PlayerInRange => playerInRange;
@@ -281,4 +340,3 @@ public class MushroomAI : MonoBehaviour
     public Vector3 FleeDirection => fleeDirection;
     public MushroomData Data => mushroomData;
 }
-
