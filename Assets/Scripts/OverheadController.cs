@@ -14,6 +14,8 @@ public class OverheadController : MonoBehaviour
     public bool useOrthographic = true; // animal crossing
     public float orthographicSize = 8f;
 
+    private float currentCameraAngle = 0f;
+
     [Header("Camera Collision")]
     public bool enableCameraCollision = true;
     public LayerMask wallLayerMask = -1; // What layers count as walls
@@ -79,8 +81,8 @@ public class OverheadController : MonoBehaviour
 
     void CalculateCameraOffset()
     {
-        // Calculate the offset from player to camera based on angle and current distance
-        Vector3 direction = Quaternion.Euler(cameraAngle, 0, 0) * Vector3.back;
+        // Use the collision-adjusted distance
+        Vector3 direction = Quaternion.Euler(cameraAngle, currentCameraAngle, 0) * Vector3.back;
         cameraOffset = direction * currentCameraDistance + Vector3.up * cameraHeight;
     }
 
@@ -139,10 +141,10 @@ public class OverheadController : MonoBehaviour
     void CheckCameraCollision()
     {
         Vector3 playerPosition = transform.position;
-        Vector3 desiredCameraDirection = Quaternion.Euler(cameraAngle, 0, 0) * Vector3.back;
+        // Use the current camera angle for collision direction
+        Vector3 desiredCameraDirection = Quaternion.Euler(cameraAngle, currentCameraAngle, 0) * Vector3.back;
         Vector3 desiredCameraPosition = playerPosition + desiredCameraDirection * cameraDistance + Vector3.up * cameraHeight;
 
-        // Cast a ray from player to desired camera position
         Vector3 rayDirection = (desiredCameraPosition - playerPosition).normalized;
         float maxDistance = Vector3.Distance(playerPosition, desiredCameraPosition);
 
@@ -152,7 +154,6 @@ public class OverheadController : MonoBehaviour
             float safeDistance = hit.distance - cameraCollisionRadius;
             Vector3 hitPoint = playerPosition + rayDirection * safeDistance;
             Vector3 directionToHit = hitPoint - playerPosition;
-
 
             Vector3 horizontalDirection = new Vector3(directionToHit.x, 0, directionToHit.z);
             float horizontalDistance = horizontalDirection.magnitude;
@@ -241,7 +242,7 @@ public class OverheadController : MonoBehaviour
 
     void RotateCamera(float rotationAmount)
     {
-        cameraTransform.RotateAround(transform.position, Vector3.up, rotationAmount);
+        currentCameraAngle += rotationAmount;
         CalculateCameraOffset();
     }
 
@@ -249,12 +250,12 @@ public class OverheadController : MonoBehaviour
     {
         if (cameraTransform == null) return;
 
-        // Smoothly follow the player with collision-adjusted position
+        // Always position camera relative to player, using the current offset
         Vector3 targetPosition = transform.position + cameraOffset;
         cameraTransform.position = Vector3.Lerp(cameraTransform.position, targetPosition, Time.deltaTime * 5f);
 
-        // Always look at player
-        // cameraTransform.LookAt(transform.position + Vector3.up);
+        // Always look at the player
+        cameraTransform.LookAt(transform.position + Vector3.up);
     }
 
     void HandleGravity()
@@ -303,7 +304,7 @@ public class OverheadController : MonoBehaviour
 
         // Draw the collision detection ray
         Vector3 playerPosition = transform.position;
-        Vector3 desiredCameraDirection = Quaternion.Euler(cameraAngle, 0, 0) * Vector3.back;
+        Vector3 desiredCameraDirection = Quaternion.Euler(cameraAngle, currentCameraAngle, 0) * Vector3.back;
         Vector3 desiredCameraPosition = playerPosition + desiredCameraDirection * cameraDistance + Vector3.up * cameraHeight;
 
         // Draw ray from player to desired camera position

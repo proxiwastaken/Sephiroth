@@ -32,6 +32,7 @@ public class MailSystem : MonoBehaviour
 
     public event Action<MushroomQuest> OnNewQuestReceived;
     public event Action<MushroomQuest> OnQuestCompleted;
+    public event Action<string> OnMushroomCollected;
 
     void Awake()
     {
@@ -90,7 +91,10 @@ public class MailSystem : MonoBehaviour
             request.collectedQuantity = Mathf.Min(request.collectedQuantity + amount, request.quantity);
             CheckQuestCompletion();
         }
+
+        OnMushroomCollected?.Invoke(mushroomType);
     }
+
 
     void CheckQuestCompletion()
     {
