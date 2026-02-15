@@ -3,7 +3,7 @@ using UnityEngine;
 public class GameController : MonoBehaviour
 {
     [Header("Game State")]
-    public bool showQuestUIOnStart = true;
+    public bool showQuestUIOnStart = false;
     public GameObject questUI;
     public GameObject player;
 

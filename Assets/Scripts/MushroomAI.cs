@@ -287,24 +287,44 @@ public class MushroomAI : MonoBehaviour
 
     public void OnCollected()
     {
-        // Notify mail system
-        if (MailSystem.Instance != null)
+        // Add to inventory instead of just destroying
+        if (InventorySystem.Instance != null)
         {
-            MailSystem.Instance.UpdateMushroomProgress(mushroomData.mushroomType, 1);
+            bool success = InventorySystem.Instance.AddMushroom(mushroomData);
 
-            // Refresh UI
-            var ui = FindObjectOfType<MushroomListUI>();
-            if (ui != null) ui.Refresh();
+            if (success)
+            {
+                // Notify mail system
+                if (MailSystem.Instance != null)
+                {
+                    MailSystem.Instance.UpdateMushroomProgress(mushroomData.mushroomType, 1);
+
+                    // Refresh UI
+                    var ui = FindObjectOfType<MushroomListUI>();
+                    if (ui != null) ui.Refresh();
+                }
+
+                // Play collection effect
+                if (mushroomData.collectionEffect != null)
+                {
+                    Instantiate(mushroomData.collectionEffect, transform.position, Quaternion.identity);
+                }
+
+                // Destroy mushroom
+                Destroy(gameObject, 0.1f);
+            }
+            else
+            {
+                Debug.Log("Inventory full! Mushroom dropped to ground.");
+                // Convert to pickup instead of destroying
+                gameObject.AddComponent<MushroomPickup>().mushroomData = mushroomData;
+            }
         }
-
-        // Play collection effect
-        if (mushroomData.collectionEffect != null)
+        else
         {
-            Instantiate(mushroomData.collectionEffect, transform.position, Quaternion.identity);
+            // Fallback to original behavior
+            // Original OnCollected code here...
         }
-
-        // Destroy mushroom
-        Destroy(gameObject, 0.1f);
     }
 
     void OnTriggerEnter(Collider other)

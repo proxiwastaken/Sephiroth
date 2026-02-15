@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 using System;
 
@@ -25,10 +25,14 @@ public class MailSystem : MonoBehaviour
     [SerializeField] private List<MushroomQuest> activeQuests = new List<MushroomQuest>();
     [SerializeField] private MushroomQuest currentQuest;
 
+    [Header("UI Settings")]
+    public GameObject mailUIPanel; // Add reference to mail UI panel
+    public KeyCode toggleMailKey = KeyCode.M; // Use M key for Mail
+    private bool isMailOpen = false;
+
     public static MailSystem Instance { get; private set; }
 
     public MushroomQuest CurrentQuest => currentQuest;
-
 
     public event Action<MushroomQuest> OnNewQuestReceived;
     public event Action<MushroomQuest> OnQuestCompleted;
@@ -49,8 +53,31 @@ public class MailSystem : MonoBehaviour
 
     void Start()
     {
-        // Start with a simple test quest
+        // Hide mail UI by default
+        if (mailUIPanel != null)
+            mailUIPanel.SetActive(false);
+
+        // Start with a simple test quest but don't show UI
         GenerateTestQuest();
+    }
+
+    void Update()
+    {
+        // Handle mail UI toggle
+        if (Input.GetKeyDown(toggleMailKey))
+        {
+            ToggleMailUI();
+        }
+    }
+
+    void ToggleMailUI()
+    {
+        isMailOpen = !isMailOpen;
+
+        if (mailUIPanel != null)
+            mailUIPanel.SetActive(isMailOpen);
+
+        Debug.Log(isMailOpen ? "📬 Mail opened!" : "📬 Mail closed!");
     }
 
     void GenerateTestQuest()
@@ -76,7 +103,12 @@ public class MailSystem : MonoBehaviour
         activeQuests.Add(quest);
         currentQuest = quest;
         OnNewQuestReceived?.Invoke(quest);
-        FindObjectOfType<MushroomListUI>().Refresh();
+
+        // Don't automatically show UI, just refresh if it's open
+        if (isMailOpen)
+        {
+            FindObjectOfType<MushroomListUI>()?.Refresh();
+        }
 
         Debug.Log($"New quest received: {quest.questTitle}");
     }
@@ -92,9 +124,9 @@ public class MailSystem : MonoBehaviour
             CheckQuestCompletion();
         }
 
+        // Fire event for research book
         OnMushroomCollected?.Invoke(mushroomType);
     }
-
 
     void CheckQuestCompletion()
     {
@@ -110,3 +142,4 @@ public class MailSystem : MonoBehaviour
         }
     }
 }
+
