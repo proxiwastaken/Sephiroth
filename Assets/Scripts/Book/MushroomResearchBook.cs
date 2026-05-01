@@ -46,6 +46,18 @@ public class MushroomResearchBook : MonoBehaviour
     public TextMeshProUGUI rightPageContent;
     public Image rightPageImage;
 
+    [Header("Page Reveal Panels (Left)")]
+    public GameObject leftNamePanel;
+    public GameObject leftTraitsPanel;
+    public GameObject leftAbilitiesPanel;
+    public GameObject leftFactsPanel;
+
+    [Header("Page Reveal Panels (Right)")]
+    public GameObject rightNamePanel;
+    public GameObject rightTraitsPanel;
+    public GameObject rightAbilitiesPanel;
+    public GameObject rightFactsPanel;
+
     [Header("Navigation")]
     public Button nextPageButton;
     public Button previousPageButton;
@@ -77,6 +89,8 @@ public class MushroomResearchBook : MonoBehaviour
     [Header("Unknown Entry Fallback")]
     [SerializeField] private Sprite unknownLeftPageSprite;
     [SerializeField] private Sprite unknownRightPageSprite;
+    [Range(0.1f, 2f)] public float unknownSpriteScaleMultiplier = 0.7f;
+    [SerializeField] private Vector2 unknownSpritePreferredSize = new Vector2(300f, 400f);
 
     [Header("Debug Test Pages")]
     [SerializeField] private bool useInspectorTestPages = false;
@@ -95,6 +109,10 @@ public class MushroomResearchBook : MonoBehaviour
     private Coroutine closeBookAnimationRoutine;
     private Coroutine stagedSideSwapRoutine;
     private bool hasLoggedDepthReadabilityWarning;
+
+    // Change tracking for inspector/runtime edits
+    private Dictionary<string, int> lastKnownCollectionCounts = new Dictionary<string, int>();
+    private Dictionary<string, bool> lastKnownDiscovered = new Dictionary<string, bool>();
 
     public event Action<bool> OnBookStateChanged;
 
@@ -177,6 +195,9 @@ public class MushroomResearchBook : MonoBehaviour
             player = playerObj.transform;
             playerCamera = Camera.main;
         }
+
+        // Initialize change tracking snapshots
+        SnapshotEntryStates();
     }
 
     private void RebindChildReferences()
@@ -253,6 +274,9 @@ public class MushroomResearchBook : MonoBehaviour
             HandleInteractionInput();
 
         HandlePageNavigationInput();
+
+        // Detect inspector/runtime changes to collection counts or discovery state and refresh pages accordingly
+        DetectEntryStateChanges();
     }
 
     void CheckPlayerProximity()
@@ -486,9 +510,6 @@ public class MushroomResearchBook : MonoBehaviour
 
         if (useInspectorTestPages && inspectorTestPagePairs != null && inspectorTestPagePairs.Count > 0)
         {
-            if (includeDefaultCoverInTestPages)
-                bookPages.Add(CreateDefaultCoverPage());
-
             foreach (var testPair in inspectorTestPagePairs)
             {
                 if (testPair == null)
@@ -510,22 +531,15 @@ public class MushroomResearchBook : MonoBehaviour
             return;
         }
 
-        // Cover page
-        bookPages.Add(CreateDefaultCoverPage());
-
         if (mushroomEntries == null || mushroomEntries.Length == 0)
             return;
 
-        if (discoveredMushrooms.Count == 0)
+        // Create spreads pairing mushrooms sequentially from Research Data array
+        for (int i = 0; i < mushroomEntries.Length; i += 2)
         {
-            bookPages.Add(CreateUnknownMushroomPagePair());
-            return;
-        }
-
-        // Mushroom pages (one page pair per mushroom)
-        foreach (var entry in discoveredMushrooms.OrderBy(e => e.displayName))
-        {
-            bookPages.Add(CreateMushroomPagePair(entry));
+            MushroomResearchEntry leftEntry = mushroomEntries[i];
+            MushroomResearchEntry rightEntry = i + 1 < mushroomEntries.Length ? mushroomEntries[i + 1] : null;
+            bookPages.Add(CreateMushroomPagePair(leftEntry, rightEntry));
         }
     }
 
@@ -585,14 +599,17 @@ public class MushroomResearchBook : MonoBehaviour
 
     string GenerateTableOfContents()
     {
-        if (discoveredMushrooms.Count == 0)
-            return "No species discovered yet.";
+        if (mushroomEntries == null || mushroomEntries.Length == 0)
+            return "No species configured.";
 
         string toc = "";
-        int pageNum = 2; // Start after cover
+        int pageNum = 1; // Start at first page (no cover)
 
-        foreach (var entry in discoveredMushrooms.OrderBy(e => e.displayName))
+        foreach (var entry in mushroomEntries.OrderBy(e => e.displayName))
         {
+            if (entry == null)
+                continue;
+
             toc += $"• {entry.displayName} ........ {pageNum}\n";
             if (entry.timesCollected > 1)
                 toc += $"  (Collected ×{entry.timesCollected})\n";
@@ -602,19 +619,28 @@ public class MushroomResearchBook : MonoBehaviour
         return toc;
     }
 
-    BookPagePair CreateMushroomPagePair(MushroomResearchEntry entry)
+    BookPagePair CreateMushroomPagePair(MushroomResearchEntry leftEntry, MushroomResearchEntry rightEntry)
     {
         return new BookPagePair
         {
             leftTitle = string.Empty,
             leftContent = string.Empty,
-            leftImage = entry.isDiscovered ? entry.overlaySprite : null,
-            leftEntry = entry,
+            leftImage = GetEntryPageSprite(leftEntry, true),
+            leftEntry = leftEntry,
             rightTitle = string.Empty,
             rightContent = string.Empty,
-            rightImage = entry.isDiscovered ? entry.overlaySprite : null,
-            rightEntry = entry
+            rightImage = GetEntryPageSprite(rightEntry, false),
+            rightEntry = rightEntry
         };
+    }
+
+    private Sprite GetEntryPageSprite(MushroomResearchEntry entry, bool isLeft)
+    {
+        if (entry == null)
+            return null;
+
+        bool hasCollected = entry.timesCollected > 0;
+        return hasCollected ? entry.overlaySprite : (isLeft ? unknownLeftPageSprite : unknownRightPageSprite);
     }
 
     public void NextPage()
@@ -917,9 +943,15 @@ public class MushroomResearchBook : MonoBehaviour
             {
                 leftPageImage.sprite = pagePair.leftImage;
                 leftPageImage.gameObject.SetActive(pagePair.leftImage != null);
+                
+                // Apply size adjustments for unknown sprites
+                if (pagePair.leftImage == unknownLeftPageSprite)
+                    ApplyUnknownSpriteSize(leftPageImage);
+                else
+                    ResetSpriteSize(leftPageImage);
             }
 
-            ApplyPanelReveal(pagePair.leftEntry);
+            ApplyPanelRevealForSide(pagePair.leftEntry, true);
         }
 
         if (updateRight)
@@ -932,40 +964,114 @@ public class MushroomResearchBook : MonoBehaviour
             {
                 rightPageImage.sprite = pagePair.rightImage;
                 rightPageImage.gameObject.SetActive(pagePair.rightImage != null);
+                
+                // Apply size adjustments for unknown sprites
+                if (pagePair.rightImage == unknownRightPageSprite)
+                    ApplyUnknownSpriteSize(rightPageImage);
+                else
+                    ResetSpriteSize(rightPageImage);
             }
 
-            ApplyPanelReveal(pagePair.rightEntry);
+            ApplyPanelRevealForSide(pagePair.rightEntry, false);
         }
 
         if (!updateLeft && !updateRight)
-            ApplyPanelReveal(null);
+            ClearRevealPanels();
     }
 
-    private void ApplyPanelReveal(MushroomResearchEntry entry)
+    private void ApplyPanelRevealForSide(MushroomResearchEntry entry, bool isLeft)
     {
-        if (mushroomEntries == null || mushroomEntries.Length == 0)
-            return;
+        // Panels reveal thresholds are fixed: Name=1, Traits=3, Abilities=5, Facts=7
+        GameObject namePanel = isLeft ? leftNamePanel : rightNamePanel;
+        GameObject traitsPanel = isLeft ? leftTraitsPanel : rightTraitsPanel;
+        GameObject abilitiesPanel = isLeft ? leftAbilitiesPanel : rightAbilitiesPanel;
+        GameObject factsPanel = isLeft ? leftFactsPanel : rightFactsPanel;
 
-        for (int i = 0; i < mushroomEntries.Length; i++)
+        if (entry == null)
         {
-            MushroomResearchEntry candidate = mushroomEntries[i];
-            if (candidate == null || candidate.panelRevealRules == null)
-                continue;
-
-            bool shouldShow = candidate == entry && candidate.isDiscovered;
-
-            for (int ruleIndex = 0; ruleIndex < candidate.panelRevealRules.Count; ruleIndex++)
-            {
-                ResearchPanelRevealRule rule = candidate.panelRevealRules[ruleIndex];
-                if (rule == null || rule.panel == null)
-                    continue;
-
-                int requiredCount = Mathf.Max(1, rule.requiredCount);
-                bool active = shouldShow && candidate.timesCollected >= requiredCount;
-                if (rule.panel.activeSelf != active)
-                    rule.panel.SetActive(active);
-            }
+            if (namePanel != null) namePanel.SetActive(false);
+            if (traitsPanel != null) traitsPanel.SetActive(false);
+            if (abilitiesPanel != null) abilitiesPanel.SetActive(false);
+            if (factsPanel != null) factsPanel.SetActive(false);
+            return;
         }
+
+        int count = Mathf.Max(0, entry.timesCollected);
+
+        // Only show panels if mushroom has been collected; hide completely for unknown pages
+        bool isCollected = count > 0;
+        if (!isCollected)
+        {
+            if (namePanel != null) namePanel.SetActive(false);
+            if (traitsPanel != null) traitsPanel.SetActive(false);
+            if (abilitiesPanel != null) abilitiesPanel.SetActive(false);
+            if (factsPanel != null) factsPanel.SetActive(false);
+            return;
+        }
+
+        // Panels act as opaque masks until unlocked. When unlocked, we make them transparent (alpha = 0)
+        SetPanelLockState(namePanel, !(count >= 1));
+        SetPanelLockState(traitsPanel, !(count >= 3));
+        SetPanelLockState(abilitiesPanel, !(count >= 5));
+        SetPanelLockState(factsPanel, !(count >= 7));
+    }
+
+    private void ClearRevealPanels()
+    {
+        SetPanelActiveSafe(leftNamePanel, false);
+        SetPanelActiveSafe(leftTraitsPanel, false);
+        SetPanelActiveSafe(leftAbilitiesPanel, false);
+        SetPanelActiveSafe(leftFactsPanel, false);
+
+        SetPanelActiveSafe(rightNamePanel, false);
+        SetPanelActiveSafe(rightTraitsPanel, false);
+        SetPanelActiveSafe(rightAbilitiesPanel, false);
+        SetPanelActiveSafe(rightFactsPanel, false);
+    }
+
+    private void SetPanelActiveSafe(GameObject panel, bool active)
+    {
+        if (panel == null) return;
+        panel.SetActive(active);
+    }
+
+    private void SetPanelLockState(GameObject panel, bool locked)
+    {
+        if (panel == null) return;
+
+        // Ensure panel is active so it can mask the page. If locked==false (unlocked) we still keep it active
+        if (!panel.activeSelf)
+            panel.SetActive(true);
+
+        CanvasGroup cg = panel.GetComponent<CanvasGroup>();
+        if (cg == null)
+            cg = panel.AddComponent<CanvasGroup>();
+
+        cg.alpha = locked ? 1f : 0f;
+        cg.interactable = false;
+        cg.blocksRaycasts = false;
+    }
+
+    private void ApplyUnknownSpriteSize(Image imageComponent)
+    {
+        if (imageComponent == null) return;
+
+        RectTransform rectTransform = imageComponent.GetComponent<RectTransform>();
+        if (rectTransform == null) return;
+
+        // Scale down the image based on the multiplier
+        rectTransform.sizeDelta = unknownSpritePreferredSize * unknownSpriteScaleMultiplier;
+    }
+
+    private void ResetSpriteSize(Image imageComponent)
+    {
+        if (imageComponent == null) return;
+
+        RectTransform rectTransform = imageComponent.GetComponent<RectTransform>();
+        if (rectTransform == null) return;
+
+        // Reset to full size
+        rectTransform.sizeDelta = unknownSpritePreferredSize;
     }
 
     private void SyncWrapSpritesFromDisplayedPages()
@@ -1018,7 +1124,7 @@ public class MushroomResearchBook : MonoBehaviour
         if (mushroomEntries == null || mushroomEntries.Length == 0)
         {
             GenerateBookPages();
-            ApplyPanelReveal(null);
+            ClearRevealPanels();
             return;
         }
 
@@ -1075,7 +1181,53 @@ public class MushroomResearchBook : MonoBehaviour
             Debug.Log($"- {mushroom.displayName} (×{mushroom.timesCollected})");
         }
 
-        ApplyPanelReveal(null);
+        ClearRevealPanels();
+    }
+
+    private void SnapshotEntryStates()
+    {
+        lastKnownCollectionCounts.Clear();
+        lastKnownDiscovered.Clear();
+
+        if (mushroomEntries == null) return;
+
+        foreach (var e in mushroomEntries)
+        {
+            if (e == null) continue;
+            lastKnownCollectionCounts[e.mushroomType] = e.timesCollected;
+            lastKnownDiscovered[e.mushroomType] = e.isDiscovered;
+        }
+    }
+
+    private void DetectEntryStateChanges()
+    {
+        if (mushroomEntries == null || mushroomEntries.Length == 0) return;
+
+        bool anyChange = false;
+
+        foreach (var e in mushroomEntries)
+        {
+            if (e == null) continue;
+
+            int lastCount = 0;
+            bool lastDisc = false;
+            lastKnownCollectionCounts.TryGetValue(e.mushroomType, out lastCount);
+            lastKnownDiscovered.TryGetValue(e.mushroomType, out lastDisc);
+
+            if (e.timesCollected != lastCount || e.isDiscovered != lastDisc)
+            {
+                anyChange = true;
+                lastKnownCollectionCounts[e.mushroomType] = e.timesCollected;
+                lastKnownDiscovered[e.mushroomType] = e.isDiscovered;
+            }
+        }
+
+        if (anyChange)
+        {
+            GenerateBookPages();
+            if (isBookOpen)
+                UpdatePageDisplay();
+        }
     }
 
     public void ResetForNewGame()
@@ -1088,7 +1240,7 @@ public class MushroomResearchBook : MonoBehaviour
         builtInInputEnabled = true;
         worldInteractionEnabled = true;
         bookPages.Clear();
-        ApplyPanelReveal(null);
+        ClearRevealPanels();
 
         if (bookUICanvas != null)
             bookUICanvas.gameObject.SetActive(false);

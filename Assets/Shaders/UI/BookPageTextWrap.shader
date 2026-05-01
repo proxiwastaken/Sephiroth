@@ -157,11 +157,11 @@ Shader "UI/BookPageTextWrap"
 
             float ColorMapToHeight(float3 sample)
             {
-                // Restrict depth to the four intended page hues; non-matching colors become neutral depth.
-                float purple = ColorMatchWeight(sample, float3(0.58, 0.25, 0.72), _DepthColorSoftness);
-                float green = ColorMatchWeight(sample, float3(0.18, 0.62, 0.24), _DepthColorSoftness);
-                float cyan = ColorMatchWeight(sample, float3(0.18, 0.80, 0.82), _DepthColorSoftness);
-                float orange = ColorMatchWeight(sample, float3(0.90, 0.52, 0.16), _DepthColorSoftness);
+                // Restrict depth to the four intended page hues; darker variants of the same hue fall deeper.
+                float purple = ColorMatchWeight(sample, float3(183.0 / 255.0, 0.0 / 255.0, 255.0 / 255.0), _DepthColorSoftness);
+                float green = ColorMatchWeight(sample, float3(83.0 / 255.0, 255.0 / 255.0, 4.0 / 255.0), _DepthColorSoftness);
+                float orange = ColorMatchWeight(sample, float3(248.0 / 255.0, 135.0 / 255.0, 20.0 / 255.0), _DepthColorSoftness);
+                float cyan = ColorMatchWeight(sample, float3(78.0 / 255.0, 255.0 / 255.0, 252.0 / 255.0), _DepthColorSoftness);
 
                 float colorMask = max(max(purple, green), max(cyan, orange));
                 float isolatedMask = smoothstep(_DepthColorThreshold, 1.0, colorMask);

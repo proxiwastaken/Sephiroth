@@ -119,6 +119,7 @@ public class FrogTongueController : MonoBehaviour
     private KeyCode captureKey = KeyCode.E;
     private PlayerAudioController playerAudioController;
     private AudioSource audioSource;
+    private bool wasAimingLastFrame = false;
 
     void Start()
     {
@@ -356,14 +357,35 @@ public class FrogTongueController : MonoBehaviour
         UpdateTongueState();
         UpdateVisualTongue();
         UpdateCharacterRotation();
+        
+        // Only update tongue direction while actively aiming
+        if (isAimingActive && mainCamera != null)
+        {
+            // While aiming, ensure tongue follows camera direction
+            Vector3 cameraForward = mainCamera.transform.forward;
+            tongueDirection = new Vector3(cameraForward.x, 0f, cameraForward.z).normalized;
+        }
+        
+        wasAimingLastFrame = isAimingActive;
     }
 
     void UpdateAnchorPosition()
     {
         if (tongueAnchor != null)
+        {
             anchorObject.transform.position = tongueAnchor.position;
+            anchorObject.transform.rotation = tongueAnchor.rotation;
+        }
         else
-            anchorObject.transform.position = transform.position + Vector3.up * 1.2f + transform.forward * 0.4f;
+        {
+            // Calculate offset based on the visual direction, not the body rotation
+            // This allows the anchor to move with the character when aiming
+            Vector3 forwardDir = characterVisual != null ? characterVisual.forward : transform.forward;
+            Vector3 upDir = characterVisual != null ? characterVisual.up : transform.up;
+            
+            anchorObject.transform.position = transform.position + upDir * 1.2f + forwardDir * 0.4f;
+            anchorObject.transform.rotation = characterVisual != null ? characterVisual.rotation : transform.rotation;
+        }
     }
 
     void HandleInput()
