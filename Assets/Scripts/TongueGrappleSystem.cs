@@ -217,31 +217,15 @@ public class TongueGrappleSystem : MonoBehaviour
 
             if (distance <= grappleRange)
             {
-                //Debug.Log($"Zone {zone.name} is in range (distance: {distance})");
-
                 if (zone.CanGrapple())
                 {
-                    Vector3 directionToZone = (zone.transform.position - transform.position).normalized;
-                    float dotProduct = Vector3.Dot(transform.forward, directionToZone);
+                    float score = 1f / Mathf.Max(distance, 0.001f);
 
-                    //Debug.Log($"  - Dot product: {dotProduct}");
-
-                    if (dotProduct > 0.3f) // More lenient facing requirement
+                    if (score > bestScore)
                     {
-                        float score = dotProduct / distance;
-                        //Debug.Log($"  - Valid zone! Score: {score}");
-
-                        if (score > bestScore)
-                        {
-                            bestScore = score;
-                            bestZone = zone;
-                            //Debug.Log($"  - New best zone: {zone.name}");
-                        }
+                        bestScore = score;
+                        bestZone = zone;
                     }
-                }
-                else
-                {
-                    //Debug.Log($"  - Zone {zone.name} cannot grapple");
                 }
             }
         }

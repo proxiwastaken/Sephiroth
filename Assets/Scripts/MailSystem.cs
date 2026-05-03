@@ -243,16 +243,16 @@ public class MailSystem : MonoBehaviour
         storyQuestLine.Clear();
         storyQuestLine.Add(CreateStoryQuest(
             "QUEST_001",
-            "Forest Scout: Sapphire Sprites",
+            "Quest: Sapphire Sprites",
             new[] { ("Sapphire Sprite", 3) }));
         storyQuestLine.Add(CreateStoryQuest(
             "QUEST_002",
-            "Forest Basket: Rare Caps",
-            new[] { ("Iconic Spellcap", 2), ("TurkeyTail", 1) }));
+            "Quest: Iconic Spellcap & Turkey Tail",
+            new[] { ("Iconic Spellcap", 2), ("Turkey Tail", 1) }));
         storyQuestLine.Add(CreateStoryQuest(
             "QUEST_003",
-            "Level 2: Teleporting Mushrooms",
-            new[] { ("Teleporting Mushroom", 2) }));
+            "Quest: Sky Gem",
+            new[] { ("Sky Gem", 2) }));
 
         storyQuestChainInitialized = true;
         currentStoryQuestIndex = 0;
@@ -532,16 +532,7 @@ public class MailSystem : MonoBehaviour
     private string GetRandomQuestTitle()
     {
         string[] titles = {
-            "Morning Foraging Order",
-            "Special Mushroom Request",
-            "Daily Harvest Task",
-            "Forest Bounty Collection",
-            "Mushroom Delivery Service",
-            "Nature's Grocery List",
-            "Woodland Treasure Hunt",
-            "Fungi Gathering Mission",
-            "Fresh Harvest Request",
-            "Seasonal Mushroom Order"
+            "Foraging Order"
         };
 
         return titles[UnityEngine.Random.Range(0, titles.Length)];

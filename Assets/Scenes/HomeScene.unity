@@ -6820,6 +6820,7 @@ GameObject:
   - component: {fileID: 1105662786}
   - component: {fileID: 1105662785}
   - component: {fileID: 1105662784}
+  - component: {fileID: 1105662795}
   m_Layer: 8
   m_Name: Player (2)
   m_TagString: Player
@@ -6862,6 +6863,7 @@ MonoBehaviour:
   notificationHudText: {fileID: 1114330737}
   elevatorActionText: use rope elevator
   grappleActionText: grapple
+  swingGrappleActionText: swing grapple
   captureMushroomActionText: capture mushroom
   doorActionText: enter
   bedActionText: sleep
@@ -7078,7 +7080,7 @@ MonoBehaviour:
   moveSpeed: 8
   rotationSmoothTime: 0.1
   sprintKey: 304
-  jumpKey: 106
+  jumpKey: 32
   jumpHeight: 1.5
   cameraTransform: {fileID: 1837228657}
   cameraHeight: 0.92
@@ -7191,6 +7193,31 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1105662795
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1105662782}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37dd629fffe520e43a9720b36f519394, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  noclipToggleKey: 277
+  noclipSpeed: 8
+  noclipSprintMultiplier: 2
+  noclipUpKey: 32
+  noclipDownKey: 306
+  menuSceneKey: 282
+  homeSceneKey: 283
+  level1SceneKey: 284
+  joelSceneKey: 285
+  menuSceneName: Menu
+  homeSceneName: HomeScene
+  level1SceneName: Level1
+  joelSceneName: JoelsScene
 --- !u!1 &1113288990
 GameObject:
   m_ObjectHideFlags: 0
@@ -10696,79 +10723,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1599741411}
   m_CullTransparentMesh: 1
---- !u!21 &1603110076
-Material:
-  serializedVersion: 8
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: BookPageTextWrap (Runtime)
-  m_Shader: {fileID: 4800000, guid: b99f46edfc1e8c042add580bffb96d93, type: 3}
-  m_Parent: {fileID: 0}
-  m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
-  m_InvalidKeywords: []
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_LockedProperties: 
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _BookDepthTex:
-        m_Texture: {fileID: 2800000, guid: 3c311c4ef798d48458b6fc151641bf3f, type: 3}
-        m_Scale: {x: 0.6840385, y: 0.74731857}
-        m_Offset: {x: 0.1631231, y: 0.10423274}
-    - _LeftDepthTex:
-        m_Texture: {fileID: 2800000, guid: 3c311c4ef798d48458b6fc151641bf3f, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _LeftTextTex:
-        m_Texture: {fileID: 2800000, guid: b6c9eb817400888419b00719c86ff09c, type: 3}
-        m_Scale: {x: 0.86990076, y: 0.93491507}
-        m_Offset: {x: 0.051730104, y: 0.035047576}
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _RightDepthTex:
-        m_Texture: {fileID: 2800000, guid: 3c311c4ef798d48458b6fc151641bf3f, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _RightTextTex:
-        m_Texture: {fileID: 2800000, guid: b6c9eb817400888419b00719c86ff09c, type: 3}
-        m_Scale: {x: 0.86990076, y: 0.93491507}
-        m_Offset: {x: 0.051730104, y: 0.035047576}
-    m_Ints: []
-    m_Floats:
-    - _ColorMask: 15
-    - _DepthBias: 0.182
-    - _DepthColorSoftness: 1
-    - _DepthColorThreshold: 0
-    - _DepthShadow: 1
-    - _LeftWarpStrength: 0.051
-    - _PageSeparation: -0.381
-    - _PageSplit: 0.5
-    - _RightWarpStrength: 0.052
-    - _Stencil: 0
-    - _StencilComp: 8
-    - _StencilOp: 0
-    - _StencilReadMask: 255
-    - _StencilWriteMask: 255
-    - _TextBlend: 1
-    - _TextScale: 0.634
-    - _TextScaleX: 0.765
-    - _TextTintStrength: 0
-    - _UseUIAlphaClip: 0
-    m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _TextTint: {r: 0.21698111, g: 0.111970425, b: 0.041963324, a: 1}
-  m_BuildTextureStacks: []
-  m_AllowLocking: 1
 --- !u!1 &1607468306
 GameObject:
   m_ObjectHideFlags: 0
@@ -16987,7 +16941,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 1603110076}
+  m_Material: {fileID: 2116578725}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -17411,6 +17365,79 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bc440c9b81b381d4196a771bbc9e2cf8, type: 3}
+--- !u!21 &2116578725
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: BookPageTextWrap (Runtime)
+  m_Shader: {fileID: 4800000, guid: b99f46edfc1e8c042add580bffb96d93, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BookDepthTex:
+        m_Texture: {fileID: 2800000, guid: 3c311c4ef798d48458b6fc151641bf3f, type: 3}
+        m_Scale: {x: 0.6840385, y: 0.74731857}
+        m_Offset: {x: 0.1631231, y: 0.10423274}
+    - _LeftDepthTex:
+        m_Texture: {fileID: 2800000, guid: 3c311c4ef798d48458b6fc151641bf3f, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _LeftTextTex:
+        m_Texture: {fileID: 2800000, guid: b6c9eb817400888419b00719c86ff09c, type: 3}
+        m_Scale: {x: 0.86990076, y: 0.93491507}
+        m_Offset: {x: 0.051730104, y: 0.035047576}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RightDepthTex:
+        m_Texture: {fileID: 2800000, guid: 3c311c4ef798d48458b6fc151641bf3f, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RightTextTex:
+        m_Texture: {fileID: 2800000, guid: b6c9eb817400888419b00719c86ff09c, type: 3}
+        m_Scale: {x: 0.86990076, y: 0.93491507}
+        m_Offset: {x: 0.051730104, y: 0.035047576}
+    m_Ints: []
+    m_Floats:
+    - _ColorMask: 15
+    - _DepthBias: 0.182
+    - _DepthColorSoftness: 1
+    - _DepthColorThreshold: 0
+    - _DepthShadow: 1
+    - _LeftWarpStrength: 0.051
+    - _PageSeparation: -0.381
+    - _PageSplit: 0.5
+    - _RightWarpStrength: 0.052
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _TextBlend: 1
+    - _TextScale: 0.634
+    - _TextScaleX: 0.765
+    - _TextTintStrength: 0
+    - _UseUIAlphaClip: 0
+    m_Colors:
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _TextTint: {r: 0.21698111, g: 0.111970425, b: 0.041963324, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!1 &2143115724
 GameObject:
   m_ObjectHideFlags: 0

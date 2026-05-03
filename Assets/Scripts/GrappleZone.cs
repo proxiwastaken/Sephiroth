@@ -73,32 +73,35 @@ public class GrappleZone : MonoBehaviour
 
     void DetectPlayer()
     {
-        // Find players in range using alternative method (similar to TongueGrappleSystem)
-        TongueGrappleSystem[] grapplers = FindObjectsOfType<TongueGrappleSystem>();
+        Collider[] playersInRange = Physics.OverlapSphere(transform.position, detectionRadius, playerLayer, QueryTriggerInteraction.Ignore);
 
         bool foundValidPlayer = false;
 
-        foreach (var grappler in grapplers)
+        foreach (Collider playerCollider in playersInRange)
         {
-            float distance = Vector3.Distance(transform.position, grappler.transform.position);
+            if (playerCollider == null)
+                continue;
+
+            Transform playerTransform = playerCollider.transform;
+            if (!playerCollider.CompareTag("Player") && playerCollider.GetComponentInParent<TongueGrappleSystem>() == null)
+                continue;
+
+            float distance = Vector3.Distance(transform.position, playerTransform.position);
 
             if (distance <= detectionRadius)
             {
-                currentPlayer = grappler.transform;
+                currentPlayer = playerTransform;
                 playerInRange = true;
+                playerCanGrapple = zoneData.isActive;
+                foundValidPlayer = zoneData.isActive;
 
-                // Check if player is facing the right direction
-                if (IsPlayerFacingCorrectDirection(currentPlayer))
+                if (foundValidPlayer)
                 {
-                    playerCanGrapple = true;
-                    foundValidPlayer = true;
-                    Debug.Log($"GrappleZone {name}: Player can grapple! Distance: {distance:F2}, Facing: OK");
+                    Debug.Log($"GrappleZone {name}: Player can grapple! Distance: {distance:F2}");
                     break;
                 }
-                else
-                {
-                    Debug.Log($"GrappleZone {name}: Player in range but not facing correctly");
-                }
+
+                Debug.Log($"GrappleZone {name}: Player in range but zone is inactive");
             }
         }
 
@@ -153,7 +156,7 @@ public class GrappleZone : MonoBehaviour
     public bool CanGrapple()
     {
         Debug.Log($"GrappleZone {name}: CanGrapple() - isActive: {zoneData.isActive}, playerCanGrapple: {playerCanGrapple}");
-        return zoneData.isActive && playerCanGrapple;
+        return zoneData.isActive && playerInRange;
     }
 
     public Transform GetGrapplePoint()
@@ -173,7 +176,7 @@ public class GrappleZone : MonoBehaviour
 
     public bool IsPlayerFacingCorrectly()
     {
-        return playerCanGrapple;
+        return zoneData.isActive && playerInRange;
     }
 
     public void SetActive(bool active)

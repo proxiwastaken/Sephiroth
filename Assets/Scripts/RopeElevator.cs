@@ -456,6 +456,31 @@ public class RopeElevator : MonoBehaviour
         if (grappleSystem != null && grappleSystem.IsGrappling())
             return false;
 
+        if (bottomPoint == null || topPoint == null)
+            return false;
+
+        Vector3 start = bottomPoint.position;
+        Vector3 end = topPoint.position;
+        Vector3 line = end - start;
+        if (line.magnitude < 0.1f)
+            return false;
+
+        Vector3 playerPos = playerTransform.position;
+        Vector3 startXZ = new Vector3(start.x, 0f, start.z);
+        Vector3 endXZ = new Vector3(end.x, 0f, end.z);
+        Vector3 lineXZ = endXZ - startXZ;
+
+        if (lineXZ.sqrMagnitude > 0.0001f)
+        {
+            float tHoriz = Mathf.Clamp01(Vector3.Dot(new Vector3(playerPos.x, 0f, playerPos.z) - startXZ,
+                                                     lineXZ.normalized) / lineXZ.magnitude);
+            Vector3 closestOnLineXZ = Vector3.Lerp(startXZ, endXZ, tHoriz);
+            float horizontalDist = Vector3.Distance(new Vector3(playerPos.x, 0f, playerPos.z), closestOnLineXZ);
+
+            if (horizontalDist > allowedHorizontalOffset)
+                return false;
+        }
+
         return true;
     }
 

@@ -13,6 +13,7 @@ public class PlayerNotification : MonoBehaviour
     [Header("Notification Text")]
     [SerializeField] private string elevatorActionText = "use rope elevator";
     [SerializeField] private string grappleActionText = "grapple";
+    [SerializeField] private string swingGrappleActionText = "swing grapple";
     [SerializeField] private string captureMushroomActionText = "capture mushroom";
     [SerializeField] private string doorActionText = "enter";
     [SerializeField] private string bedActionText = "sleep";
@@ -37,6 +38,7 @@ public class PlayerNotification : MonoBehaviour
     private MushroomAI[] mushrooms = new MushroomAI[0];
 
     private TongueGrappleSystem tongueGrappleSystem;
+    private SwingGrappleSystem swingGrappleSystem;
     private TongueActionRouter tongueActionRouter;
     private Transform activePlayerTransform;
 
@@ -127,6 +129,12 @@ public class PlayerNotification : MonoBehaviour
             return;
         }
 
+        if (TryGetSwingGrappleNotification(out KeyCode swingKey, out string swingAction))
+        {
+            ShowNotification(swingKey, swingAction);
+            return;
+        }
+
         HideNotification();
     }
 
@@ -156,6 +164,7 @@ public class PlayerNotification : MonoBehaviour
         {
             activePlayerTransform = selectedController.transform;
             tongueGrappleSystem = selectedController.GetComponent<TongueGrappleSystem>() ?? selectedController.GetComponentInParent<TongueGrappleSystem>();
+            swingGrappleSystem = selectedController.GetComponent<SwingGrappleSystem>() ?? selectedController.GetComponentInParent<SwingGrappleSystem>();
             tongueActionRouter = selectedController.GetComponent<TongueActionRouter>() ?? selectedController.GetComponentInParent<TongueActionRouter>();
         }
         else
@@ -331,6 +340,19 @@ public class PlayerNotification : MonoBehaviour
 
         key = ResolveTongueActionKey(tongueGrappleSystem.grappleKey);
         actionText = grappleActionText;
+        return true;
+    }
+
+    bool TryGetSwingGrappleNotification(out KeyCode key, out string actionText)
+    {
+        key = KeyCode.Mouse0;
+        actionText = swingGrappleActionText;
+
+        if (swingGrappleSystem == null || !swingGrappleSystem.CanStartSwing())
+            return false;
+
+        key = ResolveTongueActionKey(swingGrappleSystem.grappleKey);
+        actionText = swingGrappleActionText;
         return true;
     }
 
