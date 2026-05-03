@@ -2330,6 +2330,7 @@ MonoBehaviour:
   notificationHudText: {fileID: 0}
   elevatorActionText: use rope elevator
   grappleActionText: grapple
+  swingGrappleActionText: swing grapple
   captureMushroomActionText: capture mushroom
   doorActionText: enter
   bedActionText: sleep
