@@ -14,6 +14,7 @@ public class CuriousMorelPersonality : MushroomPersonality
     public float attackInterval = 1f;
     public float unhookDuration = 1f;
     public float unhookRange = 1.5f;
+    public float stunRetreatTime = 1.25f;
 
     private MushroomAI hookTarget;
     private float hookBreakStartTime = -1f;
@@ -21,6 +22,8 @@ public class CuriousMorelPersonality : MushroomPersonality
     private float lastAttackTime = -999f;
     private PlayerHealthStatus playerHealth;
     private FrogTongueController frogTongueController;
+    private bool isRetreatingFromStun = false;
+    private float retreatUntilTime = 0f;
 
     public override void Initialize(MushroomAI ai, MushroomData mushroomData)
     {
@@ -155,7 +158,37 @@ public class CuriousMorelPersonality : MushroomPersonality
         }
 
         Vector3 toPlayer = mushroomAI.Player.position - transform.position;
-        float distanceToPlayer = toPlayer.magnitude;
+        Vector3 horizontalToPlayer = new Vector3(toPlayer.x, 0f, toPlayer.z);
+        Vector3 directionToPlayer = horizontalToPlayer.sqrMagnitude > 0.0001f
+            ? horizontalToPlayer.normalized
+            : Vector3.zero;
+
+        // If the player is stunned, retreat briefly then hide.
+        if (IsPlayerStunned())
+        {
+            if (!isRetreatingFromStun)
+            {
+                isRetreatingFromStun = true;
+                retreatUntilTime = Time.time + stunRetreatTime;
+            }
+
+            if (Time.time < retreatUntilTime)
+            {
+                mushroomAI.MoveMushroom(-directionToPlayer, chaseSpeed);
+            }
+            else
+            {
+                isRetreatingFromStun = false;
+                mushroomAI.StopMushroom();
+                ChangeState(MushroomState.Hidden);
+            }
+
+            return;
+        }
+
+        isRetreatingFromStun = false;
+
+        float distanceToPlayer = horizontalToPlayer.magnitude;
 
         if (distanceToPlayer <= attackRange)
         {
@@ -164,7 +197,7 @@ public class CuriousMorelPersonality : MushroomPersonality
         }
         else
         {
-            mushroomAI.MoveMushroom(toPlayer.normalized, chaseSpeed);
+            mushroomAI.MoveMushroom(directionToPlayer, chaseSpeed);
         }
 
         if (!mushroomAI.PlayerInRange)
@@ -254,6 +287,14 @@ public class CuriousMorelPersonality : MushroomPersonality
         hookBreakStartTime = -1f;
     }
 
+    bool IsPlayerStunned()
+    {
+        if (playerHealth == null)
+            return false;
+
+        return playerHealth.IsStunned;
+    }
+
     public override void OnStateChanged(MushroomState fromState, MushroomState toState)
     {
         Debug.Log($"Capped Knight {transform.name}: {fromState} -> {toState}");
@@ -276,3 +317,6 @@ public class CuriousMorelPersonality : MushroomPersonality
         }
     }
 }
+
+
+

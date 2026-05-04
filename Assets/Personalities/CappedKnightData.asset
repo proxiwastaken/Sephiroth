@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b98339c711239be4aa0649ade0717284, type: 3}
   m_Name: CappedKnightData
   m_EditorClassIdentifier: 
-  mushroomType: Shiitake
-  displayName: Shiitake Mushroom
+  mushroomType: Capped Knight
+  displayName: Capped Knight
   rarity: 0
   detectionRange: 10
   personalityPrefab: {fileID: 8920490542265044307, guid: 6349495986c207c47b81242db50671d3, type: 3}

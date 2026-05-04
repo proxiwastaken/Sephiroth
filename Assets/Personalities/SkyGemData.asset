@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b98339c711239be4aa0649ade0717284, type: 3}
   m_Name: SkyGemData
   m_EditorClassIdentifier: 
-  mushroomType: Shiitake
-  displayName: Shiitake Mushroom
+  mushroomType: Sky Gem
+  displayName: The Sky Gem
   rarity: 0
   detectionRange: 7
   personalityPrefab: {fileID: 8920490542265044307, guid: 0c4e66295935c0047b11f2cf9e187590, type: 3}

@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b98339c711239be4aa0649ade0717284, type: 3}
   m_Name: ElectricLilacData
   m_EditorClassIdentifier: 
-  mushroomType: Shiitake
-  displayName: Shiitake Mushroom
+  mushroomType: Electric Lilac
+  displayName: Electric Lilac
   rarity: 0
   detectionRange: 15
   personalityPrefab: {fileID: 8920490542265044307, guid: 0be30f8514527d1449aed5545271b072, type: 3}
